@@ -61,13 +61,13 @@ exports.handler = (event, context) => {
    				res.on('end', function() {
     				try {
                 		info = JSON.parse(body);
-                		var song = info.songs[0].name;
+                		var test = info.songs[0].name;
                 		// data is available here:
                 		console.log(info);
-                		console.log(song);
+                		console.log(test);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponse('A song in the movie ' +title + ', is ' + song, true),
+                    			buildSpeechletResponse('A song in the movie ' +title + ' is ' + test, true),
                     			{}
                 			 )
                 		)
@@ -100,9 +100,9 @@ exports.handler = (event, context) => {
           case "GetArtist":
           	var name = event.request.intent.slots.Name.value;
           	console.log(name);
-			var res = name.toLowerCase();
-			var index = 0;
-    		for(var i = 0; i<res.length; i++)
+	var res = name.toLowerCase();
+	var index = 0;
+    for(var i = 0; i<res.length; i++)
             {
 	        	index++;
 	        	if(res[i]===" ")
@@ -113,47 +113,16 @@ exports.handler = (event, context) => {
 	        res = res.replaceAt(index, "-", name);
 
             console.log(res);
-            //TUNEFIND OPTIONS//
-				var options = {
-   					host: 'www.tunefind.com',
-   					port: 443,
-   					path: '/api/v1/artist/'+res,
-   					method: 'GET',
-   				headers: {
-      				'Authorization': 'Basic ' + new Buffer(user + ':' + pass).toString('base64'),
-   				} 
-			};
-			
-		//ACCESS TUNEFIND//
-	    https.get(options, function(res){
-			    console.log("STATUS: " +res.statusCode);
-   				body = '';
-   				res.on('data', function(chunk) {
-      				body += chunk;
-   				});
-   				res.on('end', function() {
-    				try {
-                		info = JSON.parse(body);
-                		var song = info.songs[0].name;
-                		// data is available here:
-                		console.log(info);
-                		console.log(song);
-                		context.succeed(
-                  			generateResponse(
-                    			buildSpeechletResponse('A song by the artist ' +name + ', is ' + song, true),
-                    			{}
-                			 )
-                		)
-                		
-            		} catch (e) {
-                		console.log('Error parsing JSON!');
-        		 	}	
-   				})
-   				res.on('error', function(e) {
-      			console.log("Got error: " + e.message);
-   			});
-			});
 
+
+          	//var endpoint = "https://www.tunefind.com/api/v1/artist"; // ENDPOINT GOES HERE
+            //var body = "";
+               context.succeed(
+                  generateResponse(
+                    buildSpeechletResponse('The Artist is ' + name, true),
+                    {}
+                  )
+                )
             break;
             
          case "AMAZON.HelpIntent":
