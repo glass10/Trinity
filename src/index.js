@@ -2,7 +2,7 @@ var https = require('https');
 var http = require('http');
 var events = require('events');
 var util = require('util');
-var eventEmiiter = new events.EventEmitter();
+var eventEmitter = new events.EventEmitter();
 
 var user = '7c63a1332d28e1701fe504ef0c6ee872';
 var pass = 'f4cee1643802b44ec24737527d83239e';
@@ -42,6 +42,8 @@ exports.handler = (event, context) => {
 
         switch(event.request.intent.name) {
           case "GetMovie":
+          	var attempts = 0;
+          	var self;
           	var title = event.request.intent.slots.Title.value;
           	console.log(title);
           	result = title.toLowerCase();
@@ -61,7 +63,7 @@ exports.handler = (event, context) => {
 				 
 				 //ACCESS OMDB//
 			this.getYear = function(){
-				var self = this;
+				self = this;
 		        	http.get('http://www.omdbapi.com/?t='+result, function(res){
 		        	console.log("STATUS: " +res.statusCode);
 		   				body = '';
@@ -91,8 +93,16 @@ exports.handler = (event, context) => {
         	
         	 Listener = function(){
         		this.tuneList = function(year){
-        			console.log("movie/"+result+"-"+year);
-        			tunefind("movie/"+result+"-"+year);
+        			attempts++;
+        			if(attempts < 2){
+        				console.log("movie/"+result+"-"+year);
+        				tunefind("movie/"+result+"-"+year);
+        			}
+        			else{
+        				console.log("movie/"+result);
+        				tunefind("movie/"+result);	
+        			}
+        			
         		}
         	}
         	var eventer = new Eventer();
@@ -134,7 +144,12 @@ exports.handler = (event, context) => {
                 		)
                 		
             		} catch (e) {
-                		console.log('Error parsing JSON!');
+            			if(attempts < 2){
+            				self.emit('tuneList', year);
+            			}
+            			else{
+            				console.log('Error parsing JSON!');	
+            			}
         		 	}	
    				})
    				res.on('error', function(e) {

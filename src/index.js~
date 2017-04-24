@@ -1,11 +1,16 @@
 var https = require('https');
 var http = require('http');
+var events = require('events');
+var util = require('util');
+var eventEmiiter = new events.EventEmitter();
 
 var user = '7c63a1332d28e1701fe504ef0c6ee872';
 var pass = 'f4cee1643802b44ec24737527d83239e';
 var extension = '';
 var body = '';
 var info = '';
+var year = ''; //Movies from OMDB
+var result = '';
 
 
 
@@ -15,7 +20,7 @@ exports.handler = (event, context) => {
 
     if (event.session.new) {
       // New Session
-      console.log("NEW SESSION")
+      console.log("NEW SESSION");
     }
 
     switch (event.request.type) {
@@ -33,18 +38,74 @@ exports.handler = (event, context) => {
 
       case "IntentRequest":
         // Intent Request
-        console.log('INTENT REQUEST')
+        console.log('INTENT REQUEST');
 
         switch(event.request.intent.name) {
           case "GetMovie":
           	var title = event.request.intent.slots.Title.value;
           	console.log(title);
-          	
-          	//TUNEFIND OPTIONS//
+          	result = title.toLowerCase();
+			var index = 0;
+    		for(var i = 0; i<result.length; i++)
+            {
+	        	index++;
+	        	if(result[i]===" ")
+	        	{
+		        	result = result.replaceAt(index, "-", title);
+	        	}
+        	}
+        	console.log(result);
+        	
+        	Eventer = function(){
+				 events.EventEmitter.call(this);
+				 
+				 //ACCESS OMDB//
+			this.getYear = function(){
+				var self = this;
+		        	http.get('http://www.omdbapi.com/?t='+result, function(res){
+		        	console.log("STATUS: " +res.statusCode);
+		   				body = '';
+		   				res.on('data', function(chunk) {
+		      				body += chunk;
+		   				});
+		   				res.on('end', function() {
+		    				try {
+		                		info = JSON.parse(body);
+		                		year = info.Year;
+		                		// data is available here:
+		                		console.log(info);
+		                		console.log(year);
+		                		self.emit('tuneList', year);
+		              
+		            		} catch (e) {
+		                		console.log('Error parsing JSON!');
+		        		 	}	
+		   				})
+		   				res.on('error', function(e) {
+		      			console.log("Got error: " + e.message);
+		   			});
+					});
+				}
+        	}
+        	util.inherits(Eventer, events.EventEmitter);
+        	
+        	 Listener = function(){
+        		this.tuneList = function(year){
+        			console.log("movie/"+result+"-"+year);
+        			tunefind("movie/"+result+"-"+year);
+        		}
+        	}
+        	var eventer = new Eventer();
+        	var listener = new Listener(eventer);
+        	eventer.on('tuneList', listener.tuneList);
+        	eventer.getYear();
+        	
+        	tunefind = function(extension){
+			//TUNEFIND OPTIONS//
 				var options = {
    					host: 'www.tunefind.com',
    					port: 443,
-   					path: '/api/v1/movie/'+title,
+   					path: '/api/v1/'+extension,
    					method: 'GET',
    				headers: {
       				'Authorization': 'Basic ' + new Buffer(user + ':' + pass).toString('base64'),
@@ -67,7 +128,7 @@ exports.handler = (event, context) => {
                 		console.log(song);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponse('A song in the movie ' +title + ', is ' + song, true),
+                    			buildSpeechletResponse('The first song in the movie ' +title + ', is ' + song +". All songs in this movie can be found in your Alexa app", true),
                     			{}
                 			 )
                 		)
@@ -80,6 +141,7 @@ exports.handler = (event, context) => {
       			console.log("Got error: " + e.message);
    			});
 			});
+			}
             break;
 
           case "GetTV":
@@ -89,12 +151,118 @@ exports.handler = (event, context) => {
             console.log(show);
           	//var endpoint = "https://www.tunefind.com/api/v1/show"; // ENDPOINT GOES HERE
             //var body = ""
-                context.succeed(
-                  generateResponse(
-                    buildSpeechletResponse('The show is ' + show + ', the season is ' + season + ', the episode is ' + episode, true),
-                    {}
-                  )
-                )
+            var result = show.toLowerCase();
+			var index = 0;
+    		for(var i = 0; i<result.length; i++)
+            {
+	        	index++;
+	        	if(result[i]===" ")
+	        	{
+		        	result = result.replaceAt(index, "-", show);
+	        	}
+        	}
+        	console.log(result);
+        	
+			
+		//ACCESS TUNEFIND//
+		Eventer = function() {
+			events.EventEmitter.call(this);
+			
+			this.getID = function(){
+			var self = this;
+			
+			//TUNEFIND OPTIONS//
+				var options = {
+   					host: 'www.tunefind.com',
+   					port: 443,
+   					path: '/api/v1/show/'+result+'/season-'+season,
+   					method: 'GET',
+   				headers: {
+      				'Authorization': 'Basic ' + new Buffer(user + ':' + pass).toString('base64'),
+   				} 
+			};
+			
+	    https.get(options, function(res){
+			    console.log("STATUS: " +res.statusCode);
+   				body = '';
+   				res.on('data', function(chunk) {
+      				body += chunk;
+   				});
+   				res.on('end', function() {
+    				try {
+                		info = JSON.parse(body);
+                		var id = info.episodes[episode-1].id;
+                		// data is available here:
+                		console.log(info);
+                		console.log(id);
+                		self.emit('tuneList', id);
+                		
+            		} catch (e) {
+                		console.log('Error parsing JSON!');
+        		 	}	
+   				})
+   				res.on('error', function(e) {
+      			console.log("Got error: " + e.message);
+   			});
+			}); 
+			}//Tunefind ends here
+			}
+			util.inherits(Eventer, events.EventEmitter);
+ 			
+ 			Listener = function(){
+        		this.tuneList = function(id){
+        			console.log("show/"+result+"/season-"+season+"/"+id);
+        			tunefind("show/"+result+"/season-"+season+"/"+id);
+        		}
+        	}
+        	var eventer = new Eventer();
+        	var listener = new Listener(eventer);
+        	eventer.on('tuneList', listener.tuneList);
+        	eventer.getID();
+        	
+        	tunefind = function(extension){
+			//TUNEFIND OPTIONS//
+				var options = {
+   					host: 'www.tunefind.com',
+   					port: 443,
+   					path: '/api/v1/'+extension,
+   					method: 'GET',
+   				headers: {
+      				'Authorization': 'Basic ' + new Buffer(user + ':' + pass).toString('base64'),
+   				} 
+			};
+			
+		//ACCESS TUNEFIND//
+	    https.get(options, function(res){
+			    console.log("STATUS: " +res.statusCode);
+   				body = '';
+   				res.on('data', function(chunk) {
+      				body += chunk;
+   				});
+   				res.on('end', function() {
+    				try {
+                		info = JSON.parse(body);
+                		var song = info.songs[0].name;
+                		// data is available here:
+                		console.log(info);
+                		console.log(song);
+                		context.succeed(
+                  			generateResponse(
+                    			buildSpeechletResponse('The first song in season ' +season + ', episode ' + episode + ', of '+ show + ', is ' + song +". More songs in this episode can be found in your Alexa app", true),
+                    			{}
+                			 )
+                		)
+                		
+            		} catch (e) {
+                		console.log('Error parsing JSON!');
+        		 	}	
+   				})
+   				res.on('error', function(e) {
+      			console.log("Got error: " + e.message);
+   			});
+			});
+			}
+        	
             break;
 
           case "GetArtist":
@@ -107,10 +275,9 @@ exports.handler = (event, context) => {
 	        	index++;
 	        	if(res[i]===" ")
 	        	{
-		        	break;
+		        	res = res.replaceAt(index, "-", name);
 	        	}
         	}
-	        res = res.replaceAt(index, "-", name);
 
             console.log(res);
             //TUNEFIND OPTIONS//
@@ -140,7 +307,7 @@ exports.handler = (event, context) => {
                 		console.log(song);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponse('A song by the artist ' +name + ', is ' + song, true),
+                    			buildSpeechletResponse('A song by the artist ' +name + ', is ' + song + '. More songs by this artist can be found in your Alexa app', true),
                     			{}
                 			 )
                 		)
@@ -203,7 +370,7 @@ exports.handler = (event, context) => {
 
     }
 
-  } catch(error) { context.fail('Exception: ${error}') }
+  } catch(error) { context.fail('Exception: '+error) }
 
 }
 
@@ -234,54 +401,4 @@ String.prototype.replaceAt  = function(index, character, string)
 {
 	return this.substr(0, index-1) + character + this.substr(index, string.length);
 }
-
-var tunefind = function(extension){
-	var options = {
-   host: 'www.tunefind.com',
-   port: 443,
-   path: '/api/v1/'+extension,
-   method: 'GET',
-   // authentication headers
-   headers: {
-      'Authorization': 'Basic ' + new Buffer(user + ':' + pass).toString('base64'),
-   } 
-	};
-
-	var req = https.get(options, function(res){
-			    console.log("STATUS: " +res.statusCode);
-   				body = '';
-   				res.on('data', function(chunk) {
-      				body += chunk;
-   				});
-   				res.on('end', function() {
-    				try {
-                		info = JSON.parse(body);
-                		var test = info.songs[0].name;
-                		//context.succeed(
-          					generateResponse(
-            					buildSpeechletResponse("This is outputting", false),
-            					{}
-          					)
-        				//)
-                		// data is available here:
-                		console.log(info);
-                		console.log(test);
-                		
-            		} catch (e) {
-                		console.log('Error parsing JSON!');
-        		 	}	
-   				})
-			});
-   				
-   			req.on('error', function(e) {
-      			console.log("Got error: " + e.message);
-   			});
-}
-
-
-
-
-
-
-
 
