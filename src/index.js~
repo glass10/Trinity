@@ -85,6 +85,7 @@ exports.handler = (event, context) => {
 		   				})
 		   				res.on('error', function(e) {
 		      			console.log("Got error: " + e.message);
+		      			attempts = 2;
 		   			});
 					});
 				}
@@ -149,6 +150,12 @@ exports.handler = (event, context) => {
             			}
             			else{
             				console.log('Error parsing JSON!');	
+            				context.succeed(
+            					generateResponse(
+            						buildSpeechletResponse("I'm sorry, there was an issue finding songs for " + title +". I am ready to try again", false),
+            						{}
+          						)
+          					)
             			}
         		 	}	
    				})
@@ -214,6 +221,12 @@ exports.handler = (event, context) => {
                 		
             		} catch (e) {
                 		console.log('Error parsing JSON!');
+                		context.succeed(
+                  			generateResponse(
+                    			buildSpeechletResponse("I'm sorry, there was an issue finding songs for season " + season + ", episode " + episode + ", of " + show +'. I am ready to try again', false),
+                    			{}
+                			 )
+                		)
         		 	}	
    				})
    				res.on('error', function(e) {
@@ -270,6 +283,12 @@ exports.handler = (event, context) => {
                 		
             		} catch (e) {
                 		console.log('Error parsing JSON!');
+                		context.succeed(
+            					generateResponse(
+            						buildSpeechletResponse("I'm sorry, there was an issue finding songs for season " + season + ", episode " + episode + ", of " + show +'. I am ready to try again', false),
+            						{}
+          						)
+          					)
         		 	}	
    				})
    				res.on('error', function(e) {
@@ -329,6 +348,12 @@ exports.handler = (event, context) => {
                 		
             		} catch (e) {
                 		console.log('Error parsing JSON!');
+                		context.succeed(
+            					generateResponse(
+            						buildSpeechletResponse("I'm sorry, there was an issue finding songs by " + name +". I am ready to try again", false),
+            						{}
+          						)
+          					)
         		 	}	
    				})
    				res.on('error', function(e) {

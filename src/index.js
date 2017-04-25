@@ -135,11 +135,19 @@ exports.handler = (event, context) => {
                 		info = JSON.parse(body);
                 		var song = info.songs[0].name;
                 		// data is available here:
+                		var content = "";
+                		for(var i = 0; i < info.songs.length; i++){
+                			content = content + info.songs[i].name + "\n";
+                			
+                		}
+                		var header = "Here are some songs in " + title;
                 		console.log(info);
                 		console.log(song);
+                		console.log(content);
+                		console.log(header);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponse('The first song in the movie ' +title + ', is ' + song +". All songs in this movie can be found in your Alexa app", true),
+                    			buildSpeechletResponseCard('A song in the movie ' +title + ', is ' + song +". All songs in this movie can be found in your Alexa app", header, content, true),
                     			{}
                 			 )
                 		)
@@ -272,11 +280,17 @@ exports.handler = (event, context) => {
                 		info = JSON.parse(body);
                 		var song = info.songs[0].name;
                 		// data is available here:
+                		var content = "";
+                		for(var i = 0; i < info.songs.length; i++){
+                			content = content + info.songs[i].name + "\n";
+                			
+                		}
+                		var header = "Here are some songs in season" + season + ", episode " + episode + ', of ' + show;
                 		console.log(info);
                 		console.log(song);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponse('The first song in season ' +season + ', episode ' + episode + ', of '+ show + ', is ' + song +". More songs in this episode can be found in your Alexa app", true),
+                    			buildSpeechletResponseCard('A song in season ' +season + ', episode ' + episode + ', of '+ show + ', is ' + song +". More songs in this episode can be found in your Alexa app", header, content, true),
                     			{}
                 			 )
                 		)
@@ -339,9 +353,17 @@ exports.handler = (event, context) => {
                 		// data is available here:
                 		console.log(info);
                 		console.log(song);
+                		
+                		var content = "";
+                		for(var i = 0; i < info.songs.length; i++){
+                			content = content + info.songs[i].name + "\n";
+                			
+                		}
+                		var header = "Here are some songs by " + name;
+                		
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponse('A song by the artist ' +name + ', is ' + song + '. More songs by this artist can be found in your Alexa app', true),
+                    			buildSpeechletResponseCard('A song by the artist ' +name + ', is ' + song + '. More songs by this artist can be found in your Alexa app', header, content, true),
                     			{}
                 			 )
                 		)
@@ -421,6 +443,22 @@ buildSpeechletResponse = (outputText, shouldEndSession) => {
     outputSpeech: {
       type: "PlainText",
       text: outputText
+    },
+    shouldEndSession: shouldEndSession
+  }
+
+}
+buildSpeechletResponseCard = (outputText, title, content, shouldEndSession) => {
+
+  return {
+    outputSpeech: {
+      type: "PlainText",
+      text: outputText
+    },
+    card: {
+      type: "Simple",
+      title: title,
+      content: content
     },
     shouldEndSession: shouldEndSession
   }
