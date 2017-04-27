@@ -1,0 +1,48 @@
+{
+  "intents": [
+    {
+      "intent": "GetMovie",
+      "slots": [
+        {
+          "name": "Title",
+          "type": "AMAZON.Movie"
+        }
+      ]
+    },
+    {
+      "intent": "GetTV",
+      "slots": [
+        {
+          "name": "Show",
+          "type": "AMAZON.TVSeries"
+        },
+        {
+          "name": "Season",
+          "type": "AMAZON.NUMBER"
+        },
+        {
+          "name": "Episode",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
+    	"intent": "GetArtist",
+    	"slots": [
+        {
+          "name": "Name",
+          "type": "AMAZON.artist"
+        }
+      ]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    }
+  ]
+}
