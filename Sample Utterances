@@ -1,0 +1,55 @@
+  GetMovie
+GetMovie	what are the songs in the movie {Title}
+GetMovie	what is the song in the movie {Title}
+GetMovie	song in the movie {Title}
+GetMovie	songs in the movie {Title}
+GetMovie	song in the movie {Title}
+GetMovie	songs in the movie {Title}
+GetMovie	{Title} movie song
+GetMovie	{Title} movie songs
+GetMovie	list songs in the movie {Title} 
+GetMovie	list song in the movie {Title} 
+GetMovie	list {Title} movie songs
+GetMovie	list {Title} movie song
+GetMovie	what are songs in the movie {Title}
+GetMovie	song in {Title}
+GetMovie	songs in {Title}
+
+  GetTV	
+GetTV 		what songs are in {Show} season {Season} episode {Episode}
+GetTV 		what song is in {Show} season {Season} episode {Episode}
+GetTV 		song in {Show} season {Season} episode {Episode}
+GetTV 		songs in {Show} season {Season} episode {Episode}
+GetTV 		list songs in {Show} season {Season} episode {Episode}
+GetTV 		{Show} season {Season} episode {Episode} songs
+GetTV 		what songs are in episode {Episode} season {Season} of {Show}
+GetTV 		what song is in episode {Episode} season {Season} of {Show}
+GetTV 		what songs are in season {Season} episode {Episode} of {Show}
+GetTV 		what song is in season {Season} episode {Episode} of {Show}
+GetTV 		song in episode {Episode} season {Season} of {Show}
+GetTV 		songs in episode {Episode} season {Season} of {Show}
+GetTV 		song in season {Season} episode {Episode} of {Show}
+GetTV 		songs in season {Season} episode {Episode} of {Show}
+GetTV 		list songs in episode {Episode} season {Season} of {Show}
+GetTV 		list songs in season {Season} episode {Episode} of {Show}
+GetTV 		episode {Episode} season {Season} of {Show} songs
+GetTV 		season {Season} episode {Episode} of {Show} songs
+GetTV 		songs in season {Season} episode {Episode} of {Show}
+
+	
+GetArtist
+GetArtist     {Name} songs
+GetArtist	    {Name} song
+GetArtist	    list {Name} songs
+GetArtist	    list {Name} song
+GetArtist	    songs by {Name}
+GetArtist	    song by {Name}
+GetArtist	    list songs by {Name}
+GetArtist	    list song by {Name}
+GetArtist	    get songs by {Name}
+GetArtist	    get song by {Name}
+GetArtist	    name songs by {Name}
+GetArtist	    name song by {Name}
+GetArtist	    What songs does {Name} sing?
+GetArtist 	  What song does {Name} sing?
+GetArtist 	  {Name} sings what?
