@@ -11,6 +11,7 @@ var body = '';
 var info = '';
 var year = ''; //Movies from OMDB
 var result = '';
+var poster = '';
 
 
 
@@ -74,6 +75,7 @@ exports.handler = (event, context) => {
 		    				try {
 		                		info = JSON.parse(body);
 		                		year = info.Year;
+		                		poster = info.Poster;
 		                		// data is available here:
 		                		console.log(info);
 		                		console.log(year);
@@ -137,7 +139,7 @@ exports.handler = (event, context) => {
                 		// data is available here:
                 		var content = "";
                 		for(var i = 0; i < info.songs.length; i++){
-                			content = content + info.songs[i].name + "\n";
+                			content = content + info.songs[i].name + " by " +info.songs[i].artist.name + "\r\n";
                 			
                 		}
                 		var header = "Here are some songs in " + title;
@@ -147,7 +149,7 @@ exports.handler = (event, context) => {
                 		console.log(header);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponseCard('A song in the movie ' +title + ', is ' + song +". All songs in this movie can be found in your Alexa app", header, content, true),
+                    			buildSpeechletResponsePoster('A song in the Movie ' +title + ', is ' + song +". All songs in this movie can be found in your Alexa app", header, content, poster, true),
                     			{}
                 			 )
                 		)
@@ -197,6 +199,31 @@ exports.handler = (event, context) => {
 		//ACCESS TUNEFIND//
 		Eventer = function() {
 			events.EventEmitter.call(this);
+			
+			this.getPoster = function(){
+				var self = this;
+				http.get('http://www.omdbapi.com/?t='+result, function(res){
+		        	console.log("STATUS: " +res.statusCode);
+		   				body = '';
+		   				res.on('data', function(chunk) {
+		      				body += chunk;
+		   				});
+		   				res.on('end', function() {
+		    				try {
+		                		info = JSON.parse(body);
+		                		poster = info.Poster;
+		                		// data is available here:
+		                		self.emit('poster', poster);
+		              
+		            		} catch (e) {
+		                		console.log('Error parsing JSON!');
+		        		 	}	
+		   				})
+		   				res.on('error', function(e) {
+		      			console.log("Got error: " + e.message);
+		   			});
+					});
+			}
 			
 			this.getID = function(){
 			var self = this;
@@ -250,11 +277,16 @@ exports.handler = (event, context) => {
         			console.log("show/"+result+"/season-"+season+"/"+id);
         			tunefind("show/"+result+"/season-"+season+"/"+id);
         		}
+        		
+        		this.poster = function(poster){
+        			eventer.getID();
+        		}
         	}
         	var eventer = new Eventer();
         	var listener = new Listener(eventer);
         	eventer.on('tuneList', listener.tuneList);
-        	eventer.getID();
+        	eventer.on('poster', listener.poster)
+        	eventer.getPoster();
         	
         	tunefind = function(extension){
 			//TUNEFIND OPTIONS//
@@ -282,15 +314,15 @@ exports.handler = (event, context) => {
                 		// data is available here:
                 		var content = "";
                 		for(var i = 0; i < info.songs.length; i++){
-                			content = content + info.songs[i].name + "\n";
+                			content = content + info.songs[i].name + " by " +info.songs[i].artist.name + "\n\n";
                 			
                 		}
-                		var header = "Here are some songs in season" + season + ", episode " + episode + ', of ' + show;
+                		var header = "Here are some songs in Season " + season + ", Episode " + episode + ', of ' + show;
                 		console.log(info);
                 		console.log(song);
                 		context.succeed(
                   			generateResponse(
-                    			buildSpeechletResponseCard('A song in season ' +season + ', episode ' + episode + ', of '+ show + ', is ' + song +". More songs in this episode can be found in your Alexa app", header, content, true),
+                    			buildSpeechletResponsePoster('A song in season ' +season + ', episode ' + episode + ', of '+ show + ', is ' + song +". More songs in this episode can be found in your Alexa app", header, content, poster, true),
                     			{}
                 			 )
                 		)
@@ -356,7 +388,14 @@ exports.handler = (event, context) => {
                 		
                 		var content = "";
                 		for(var i = 0; i < info.songs.length; i++){
-                			content = content + info.songs[i].name + "\n";
+                			if(i === 0){
+                				content = content + info.songs[i].name + "\n";	
+                			}
+                			else if(info.songs[i].name != info.songs[i-1].name){
+                				content = content + info.songs[i].name + "\n";
+                				//content = "\t" + content + info.songs[i].tunefind_url + "\n";
+                			}
+                			
                 			
                 		}
                 		var header = "Here are some songs by " + name;
@@ -459,6 +498,26 @@ buildSpeechletResponseCard = (outputText, title, content, shouldEndSession) => {
       type: "Simple",
       title: title,
       content: content
+    },
+    shouldEndSession: shouldEndSession
+  }
+
+}
+
+buildSpeechletResponsePoster = (outputText, title, content, poster, shouldEndSession) => {
+
+  return {
+    outputSpeech: {
+      type: "PlainText",
+      text: outputText
+    },
+    card: {
+      type: "Standard",
+      title: title,
+      text: content,
+      image: {
+      	largeImageUrl: poster
+      }
     },
     shouldEndSession: shouldEndSession
   }
