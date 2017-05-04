@@ -31,7 +31,7 @@ exports.handler = (event, context) => {
         console.log('LAUNCH REQUEST')
         context.succeed(
           generateResponse(
-            buildSpeechletResponse("Welcome to Trinity. How may I help you?", false),
+            buildSpeechletResponse("Welcome to Trinity Music. How may I help you?", false),
             {}
           )
         )
@@ -46,6 +46,15 @@ exports.handler = (event, context) => {
           	var attempts = 0;
           	var self;
           	var title = event.request.intent.slots.Title.value;
+          	if(title === undefined){
+          		context.succeed(
+            					generateResponse(
+            						buildSpeechletResponse("I'm sorry, I didn't hear a movie title given. I am ready to try again.", false),
+            						{}
+          						)
+          					)	
+          	}
+          	else{
           	console.log(title);
           	result = title.toLowerCase();
 			var index = 0;
@@ -142,8 +151,7 @@ exports.handler = (event, context) => {
                 			content = content + info.songs[i].name + " by " +info.songs[i].artist.name + "\r\n";
                 			
                 		}
-                		var titleC = capitalizeEachWord(title);
-                		var header = "Here are some songs in " + titleC;
+                		var header = "Here are some songs in " + title;
                 		console.log(info);
                 		console.log(song);
                 		console.log(content);
@@ -175,12 +183,25 @@ exports.handler = (event, context) => {
    			});
 			});
 			}
+          	}
             break;
 
           case "GetTV":
           	var show = event.request.intent.slots.Show.value;
             var season = event.request.intent.slots.Season.value;
             var episode = event.request.intent.slots.Episode.value;
+            console.log("Show: " + show);
+            console.log("Season: " + season);
+            console.log("Episode: " + episode);
+            if(show === undefined || season === undefined || episode === undefined){
+          		context.succeed(
+            					generateResponse(
+            						buildSpeechletResponse("I'm sorry, I didn't hear a season, episode, and show title given. I am ready to try again.", false),
+            						{}
+          						)
+          					)	
+          	}
+          	else{
             console.log(show);
           	//var endpoint = "https://www.tunefind.com/api/v1/show"; // ENDPOINT GOES HERE
             //var body = ""
@@ -318,8 +339,7 @@ exports.handler = (event, context) => {
                 			content = content + info.songs[i].name + " by " +info.songs[i].artist.name + "\n\n";
                 			
                 		}
-                		var showC = capitalizeEachWord(show);
-                		var header = "Here are some songs in Season " + season + ", Episode " + episode + ', of ' + showC;
+                		var header = "Here are some songs in Season " + season + ", Episode " + episode + ', of ' + show;
                 		console.log(info);
                 		console.log(song);
                 		context.succeed(
@@ -344,11 +364,20 @@ exports.handler = (event, context) => {
    			});
 			});
 			}
-        	
+          	}
             break;
 
           case "GetArtist":
           	var name = event.request.intent.slots.Name.value;
+          	if(name === undefined){
+          		context.succeed(
+            					generateResponse(
+            						buildSpeechletResponse("I'm sorry, I didn't hear an artist name given. I am ready to try again.", false),
+            						{}
+          						)
+          					)	
+          	}
+          	else{
           	console.log(name);
 			var res = name.toLowerCase();
 			var index = 0;
@@ -400,8 +429,7 @@ exports.handler = (event, context) => {
                 			
                 			
                 		}
-                		var nameC = capitalizeEachWord(name);
-                		var header = "Here are some songs by " + nameC;
+                		var header = "Here are some songs by " + name;
                 		
                 		context.succeed(
                   			generateResponse(
@@ -424,7 +452,7 @@ exports.handler = (event, context) => {
       			console.log("Got error: " + e.message);
    			});
 			});
-
+          	}
             break;
             
          case "AMAZON.HelpIntent":
@@ -441,7 +469,7 @@ exports.handler = (event, context) => {
       	    console.log('HELP REQUEST');
       	    context.succeed(
                 generateResponse(
-                    buildSpeechletResponse('Thank you for using Trinity', true),
+                    buildSpeechletResponse('Thank you for using Trinity Music', true),
                     {}
                 )
             )
@@ -451,7 +479,7 @@ exports.handler = (event, context) => {
       	    console.log('HELP REQUEST');
       	    context.succeed(
                 generateResponse(
-                    buildSpeechletResponse('Thank you for using Trinity', true),
+                    buildSpeechletResponse('Thank you for using Trinity Music', true),
                     {}
                 )
             )
@@ -541,8 +569,4 @@ String.prototype.replaceAt  = function(index, character, string)
 {
 	return this.substr(0, index-1) + character + this.substr(index, string.length);
 }
-function capitalizeEachWord(str) {
-    return str.replace(/\w\S*/g, function(txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    });
-}
+
