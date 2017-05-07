@@ -4,7 +4,7 @@
 An Amazon Alexa Skill that uses the TuneFind API to give song information for Movies, TV Shows, and Artists
 
 ## Inspiration 
--Coming Soon-
+Music is an extremely prevalent part of today’s society. Sometimes it is difficult to use tools like Shazam to get the names of songs in TV shows or movies, as dialogue or other noises are often played over the music. So we developed this to be a non-intrusive way of finding songs without the need to rewind what you are watching or get up to grab your phone.
 
 ## What it does
 The skill Trinity Music takes in the user’s request to find information on songs that are in a TV show or Movie, as well as music featured in these by a certain artist. The user can ask a question that includes the name of the movie, the TV show with the season and episode, or the artist name, and in return Trinity Music will supply a list of songs that are found, as well as a card in the application with a list of songs, who they are by, and a poster image of the movie.
