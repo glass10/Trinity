@@ -4,10 +4,7 @@
 An Amazon Alexa Skill that uses the TuneFind API to give song information for Movies, TV Shows, and Artists
 
 ## Demo
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=LRc6xrKuqQo
-" target="_blank"><img src="http://img.youtube.com/vi/LRc6xrKuqQo/0.jpg" 
-alt="Skill Demo" width="240" height="180" border="10" align="center"/></a>
-http://www.youtube.com/watch?feature=player_embedded&v=LRc6xrKuqQo 
+https://youtu.be/LRc6xrKuqQo
 
 ## Inspiration 
 Music is an extremely prevalent part of today’s society. Sometimes it is difficult to use tools like Shazam to get the names of songs in TV shows or movies, as dialogue or other noises are often played over the music. So we developed this to be a non-intrusive way of finding songs without the need to rewind what you are watching or get up to grab your phone.
