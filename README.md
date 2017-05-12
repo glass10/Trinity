@@ -3,7 +3,7 @@
 # Trinity Music
 An Amazon Alexa Skill that uses the TuneFind API to give song information for Movies, TV Shows, and Artists
 
-##Demo
+# Demo
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=LRc6xrKuqQo
 " target="_blank"><img src="http://img.youtube.com/vi/LRc6xrKuqQo/0.jpg" 
 alt="Skill Demo" width="240" height="180" border="10" align="center"/></a>
