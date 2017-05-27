@@ -151,7 +151,8 @@ exports.handler = (event, context) => {
                 			content = content + info.songs[i].name + " by " +info.songs[i].artist.name + "\r\n";
                 			
                 		}
-                		var header = "Here are some songs in " + title;
+                		var titleC = capitalizeEachWord(title);
+                		var header = "Here are some songs in " + titleC;
                 		console.log(info);
                 		console.log(song);
                 		console.log(content);
@@ -339,7 +340,8 @@ exports.handler = (event, context) => {
                 			content = content + info.songs[i].name + " by " +info.songs[i].artist.name + "\n\n";
                 			
                 		}
-                		var header = "Here are some songs in Season " + season + ", Episode " + episode + ', of ' + show;
+                		var showC = capitalizeEachWord(show);
+                		var header = "Here are some songs in Season " + season + ", Episode " + episode + ', of ' + showC;
                 		console.log(info);
                 		console.log(song);
                 		context.succeed(
@@ -429,7 +431,8 @@ exports.handler = (event, context) => {
                 			
                 			
                 		}
-                		var header = "Here are some songs by " + name;
+                		var nameC = capitalizeEachWord(name);
+                		var header = "Here are some songs by " + nameC;
                 		
                 		context.succeed(
                   			generateResponse(
@@ -568,5 +571,11 @@ generateResponse = (speechletResponse, sessionAttributes) => {
 String.prototype.replaceAt  = function(index, character, string)
 {
 	return this.substr(0, index-1) + character + this.substr(index, string.length);
+}
+
+function capitalizeEachWord(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
 }
 

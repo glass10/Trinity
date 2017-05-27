@@ -71,10 +71,10 @@ exports.handler = (event, context) => {
         	Eventer = function(){
 				 events.EventEmitter.call(this);
 				 
-				 //ACCESS OMDB//
+				 //ACCESS TMDB//
 			this.getYear = function(){
 				self = this;
-		        	http.get('http://www.omdbapi.com/?t='+result, function(res){
+		        	http.get('http://api.themoviedb.org/3/search/movie?api_key=fc88acbc5397f84449dc18dc298f859c&query='+result, function(res){
 		        	console.log("STATUS: " +res.statusCode);
 		   				body = '';
 		   				res.on('data', function(chunk) {
@@ -82,16 +82,64 @@ exports.handler = (event, context) => {
 		   				});
 		   				res.on('end', function() {
 		    				try {
+                                console.log(body);
 		                		info = JSON.parse(body);
-		                		year = info.Year;
-		                		poster = info.Poster;
+
+                                var out = 0;
+                                for(var i = 0; i < info.results.length; i++){
+                                    var Otitle = title.toLowerCase();
+                                    var Ttitle = info.results[i].title.toLowerCase();
+                                    Ttitle = Ttitle.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+                                    console.log(Ttitle);
+                                    if(Otitle.localeCompare(Ttitle) === 0){
+                                        year = info.results[i].release_date;
+                                        year = year.substring(0,4);
+
+                                        poster = info.results[i].poster_path;
+                                        poster = 'https://image.tmdb.org/t/p/w185/'+poster;
+                                        self.emit('tuneList', year);
+                                        out = 1;
+                                        i = info.results.length;
+                                    }
+                                }
+                                if(out === 0){
+                                    year = info.results[0].release_date;
+                                    year = year.substring(0,4);
+
+                                    poster = info.results[0].poster_path;
+                                    poster = 'https://image.tmdb.org/t/p/w185/'+poster;
+
+                                    title = info.results[0].title;
+                                    title = title.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+                                    result = title.toLowerCase();
+                                    index = 0;
+                                    for(var i = 0; i<result.length; i++)
+                                    {
+                                        index++;
+                                        if(result[i]===" ")
+                                        {
+                                            result = result.replaceAt(index, "-", title);
+                                        }
+                                    }
+
+                                    self.emit('tuneList', year);
+                                    out = 1;
+                                }
+
 		                		// data is available here:
 		                		console.log(info);
 		                		console.log(year);
-		                		self.emit('tuneList', year);
+                                console.log(poster);
+		                		
 		              
 		            		} catch (e) {
 		                		console.log('Error parsing JSON!');
+                                context.succeed(
+                                    generateResponse(
+                                        buildSpeechletResponse("I'm sorry, there was an issue finding songs for " + title +". I am ready to try again", false),
+                                        {}
+                                    )
+                                )
 		        		 	}	
 		   				})
 		   				res.on('error', function(e) {
@@ -224,8 +272,8 @@ exports.handler = (event, context) => {
 			events.EventEmitter.call(this);
 			
 			this.getPoster = function(){
-				var self = this;
-				http.get('http://www.omdbapi.com/?t='+result, function(res){
+				self = this;
+		        	http.get('http://api.themoviedb.org/3/search/tv?api_key=fc88acbc5397f84449dc18dc298f859c&query='+result, function(res){
 		        	console.log("STATUS: " +res.statusCode);
 		   				body = '';
 		   				res.on('data', function(chunk) {
@@ -233,10 +281,17 @@ exports.handler = (event, context) => {
 		   				});
 		   				res.on('end', function() {
 		    				try {
+                                console.log(body);
 		                		info = JSON.parse(body);
-		                		poster = info.Poster;
+
+                                poster = info.results[0].poster_path;
+                                poster = 'https://image.tmdb.org/t/p/w185/'+poster;
+                                self.emit('poster', poster);
+
 		                		// data is available here:
-		                		self.emit('poster', poster);
+		                		console.log(info);
+                                console.log(poster);
+		                		
 		              
 		            		} catch (e) {
 		                		console.log('Error parsing JSON!');
@@ -246,7 +301,7 @@ exports.handler = (event, context) => {
 		      			console.log("Got error: " + e.message);
 		   			});
 					});
-			}
+				}
 			
 			this.getID = function(){
 			var self = this;
@@ -577,5 +632,19 @@ function capitalizeEachWord(str) {
     return str.replace(/\w\S*/g, function(txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
+}
+
+function similarity(s1, s2) {
+  var longer = s1;
+  var shorter = s2;
+  if (s1.length < s2.length) {
+    longer = s2;
+    shorter = s1;
+  }
+  var longerLength = longer.length;
+  if (longerLength == 0) {
+    return 1.0;
+  }
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
 }
 
